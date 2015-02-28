@@ -1,0 +1,67 @@
+{% load static %}
+<!Doctype html>
+<html>
+<head>
+    <title>Signup Metrics</title>
+    <link rel="stylesheet" href="{% static "css/style.css" %}"/>
+    <script src="{% static "js/jquery-1.9.0.js" %}"></script>
+    <script src="{% static "js/Chart.min.js" %}"></script>
+</head>
+<body>
+    <div style="width:50%; margin:20px auto;">
+        <div>
+            <canvas id="canvas" height="450" width="600"></canvas>
+        </div>
+    </div>
+    <div style="text-align: center;">
+        <button type="button"class="btnAddSignup">
+            <small><i>random:</i></small>
+            <small>ADD SIGNUP</small>
+        </button>
+    </div>
+    <script type="text/javascript">
+        var canvas = document.getElementById('canvas'),
+        cntxt = canvas.getContext('2d'),
+		lineChartData = {
+			labels : {% autoescape off %}{{labels}}{% endautoescape %},
+			datasets : [
+				{
+					label: "My First dataset",
+                    fillColor : "rgba(151,187,205,0.2)",
+                    strokeColor : "rgba(151,187,205,1)",
+                    pointColor : "rgba(151,187,205,1)",
+                    pointStrokeColor : "#fff",
+                    pointHighlightFill : "#fff",
+                    pointHighlightStroke : "rgba(151,187,205,1)",
+					data : {% autoescape off %}{{values}}{% endautoescape %}
+				}
+			]
+
+		}
+
+
+	jQuery().ready(function(){
+
+        cntxt = document.getElementById("canvas").getContext("2d");
+        var myLiveChart = new Chart(cntxt).Line(lineChartData, {animationSteps: 15});
+
+	    $('.btnAddSignup').on('click', function(){
+	        $.post('/signups/add/',{},function(data, callback){
+                if(callback == 'success'){
+                    if(data) {
+                        for(i=0; i<data.count.length;i++){
+                            myLiveChart.datasets[0].points[i].value = data.count[i];
+                        }
+                        myLiveChart.update();
+                    }
+                    
+                }
+	        });
+	    });
+	});
+
+
+    </script>
+
+</body>
+</html>
